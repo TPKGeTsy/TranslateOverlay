@@ -2,291 +2,208 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Game Lexicon Pro</title>
+    <title>Game Lexicon Pro - Thai Definition</title>
     <style>
         :root {
             --primary: #fbbf24;
             --secondary: #10b981;
-            --card-bg: #111827;
+            --card-bg: rgba(17, 24, 39, 0.98);
             --text: #f3f4f6;
         }
 
         body { 
             margin: 0; padding: 0; width: 100vw; height: 100vh; 
             overflow: hidden; background: transparent; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            user-select: none;
+            font-family: 'Segoe UI', 'Tahoma', 'Microsoft Sans Serif', sans-serif;
         }
         
         #bg-img {
             position: absolute; top: 0; left: 0;
             width: 100%; height: 100%;
             object-fit: contain; display: none; z-index: 1;
-            filter: brightness(0.6) contrast(1.1);
-        }
-
-        #status {
-            position: absolute; top: 30px; left: 50%;
-            transform: translateX(-50%);
-            padding: 12px 24px; background: var(--card-bg); 
-            color: var(--primary); font-weight: 600;
-            border-radius: 99px; border: 2px solid var(--primary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            z-index: 10; display: none;
+            filter: brightness(0.4);
         }
 
         .word-box {
             position: absolute;
-            border-radius: 4px;
-            background: rgba(251, 191, 36, 0.1);
-            border: 1px solid rgba(251, 191, 36, 0.3);
+            background: rgba(251, 191, 36, 0.05);
+            border: 1px solid rgba(251, 191, 36, 0.2);
+            border-radius: 3px;
             cursor: pointer; z-index: 5;
-            transition: all 0.1s ease-out;
         }
 
-        .word-box:hover {
-            background: rgba(251, 191, 36, 0.4);
-            border: 2px solid var(--primary);
-            box-shadow: 0 0 15px var(--primary);
-            transform: scale(1.08);
-            z-index: 10;
-        }
-
-        /* Definition Card */
-        #def-card {
+        #control-panel {
             position: fixed; bottom: 30px; right: 30px;
-            width: 380px; background: var(--card-bg);
-            border-radius: 20px; border: 1px solid #374151;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
-            padding: 24px; color: var(--text);
-            display: none; z-index: 1000;
-            animation: fadeIn 0.2s ease-out;
+            width: 380px; z-index: 1000;
+            display: none;
+            animation: slideInRight 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        #def-card h2 { margin: 0 0 8px 0; color: var(--primary); font-size: 1.8rem; }
-        .meaning-thai { font-size: 1.3rem; color: #fff; margin: 12px 0; line-height: 1.4; font-weight: 500; }
-        .meaning-eng { font-size: 0.95rem; color: #9ca3af; border-top: 1px solid #374151; padding-top: 12px; font-style: italic; }
-        
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid #374151;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            margin-top: 12px;
+        }
+
+        #edit-input {
+            width: 100%; padding: 12px;
+            background: #0f172a; border: 2px solid #334155;
+            border-radius: 10px; color: var(--primary); font-size: 1.2rem;
+            box-sizing: border-box; outline: none;
+        }
+
+        .meaning-thai { font-size: 1.5rem; color: #fff; margin: 10px 0; font-weight: 600; }
+        .desc-thai { font-size: 1rem; color: var(--primary); margin-bottom: 12px; line-height: 1.4; font-weight: 500; }
+        .meaning-eng { font-size: 0.85rem; color: #9ca3af; border-top: 1px solid #374151; padding-top: 12px; font-style: italic; }
+
         #save-btn {
             background: linear-gradient(135deg, var(--secondary), #059669);
-            color: white; border: none; padding: 12px; border-radius: 12px;
-            cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px;
-            font-size: 1rem; transition: all 0.2s;
+            color: white; border: none; padding: 12px; border-radius: 10px;
+            width: 100%; margin-top: 15px; cursor: pointer; font-weight: bold;
         }
-        #save-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
-        #save-btn:active { transform: translateY(0); }
-        #save-btn:disabled { background: #4b5563; cursor: default; transform: none; box-shadow: none; }
-
-        /* Library Panel */
-        #library-btn {
-            position: absolute; top: 25px; right: 25px;
-            background: var(--card-bg); color: var(--primary);
-            border: 2px solid var(--primary); border-radius: 50%;
-            width: 55px; height: 55px; cursor: pointer;
-            font-size: 1.6rem; z-index: 200; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        #library-btn:hover { background: var(--primary); color: var(--card-bg); transform: rotate(15deg); }
-
-        #library-panel {
-            position: fixed; top: 0; right: -420px;
-            width: 380px; height: 100vh;
-            background: #0f172a; z-index: 2000;
-            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: -15px 0 30px rgba(0,0,0,0.6);
-            padding: 30px; color: var(--text);
-            overflow-y: auto;
-        }
-
-        .vocab-item {
-            background: #1e293b; padding: 15px; border-radius: 12px; margin-bottom: 12px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .loader {
-            width: 18px; height: 18px;
-            border: 2px solid #f3f3f3; border-top: 2px solid var(--primary);
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-            display: inline-block; vertical-align: middle; margin-right: 12px;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <button id="library-btn" title="Open Vocabulary Library" onclick="toggleLibrary()">📚</button>
-    <div id="status"><span class="loader"></span>PROCESSING SCREEN...</div>
+    <div id="control-panel">
+        <div class="glass-card">
+            <div style="color: var(--primary); font-size: 0.75rem; font-weight: bold; margin-bottom: 8px;">SCANNER INTERFACE</div>
+            <input type="text" id="edit-input" placeholder="พิมพ์แก้ไขที่นี่...">
+        </div>
+        
+        <div id="def-card" class="glass-card">
+            <div id="card-thai" class="meaning-thai">เลือกคำที่ต้องการ...</div>
+            <div id="card-desc-thai" class="desc-thai">คำอธิบายภาษาไทยจะโผล่ที่นี่</div>
+            <div id="card-eng" class="meaning-eng">English definition loading...</div>
+            <button id="save-btn" onclick="saveToLibrary()">เก็บเข้าคลังคำศัพท์</button>
+        </div>
+    </div>
+
     <img id="bg-img">
     <div id="word-container"></div>
 
-    <!-- Translation Card -->
-    <div id="def-card">
-        <h2 id="card-word">Word</h2>
-        <div id="card-phonetic" style="color: #9ca3af; font-size: 1rem; margin-bottom: 4px;"></div>
-        <div id="card-thai" class="meaning-thai">Translating...</div>
-        <div id="card-eng" class="meaning-eng">English Definition...</div>
-        <button id="save-btn" onclick="saveToLibrary()">Add to My Library</button>
-    </div>
-
-    <!-- Library Panel -->
-    <div id="library-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h2 style="margin: 0; color: var(--primary);">My Vocabulary</h2>
-            <button onclick="toggleLibrary()" style="background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; padding: 0;">&times;</button>
-        </div>
-        <div id="vocab-list"></div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
     <script>
         const { ipcRenderer } = require('electron');
         const bgImg = document.getElementById('bg-img');
-        const status = document.getElementById('status');
         const wordContainer = document.getElementById('word-container');
-        const defCard = document.getElementById('def-card');
-        let currentWordData = null;
+        const controlPanel = document.getElementById('control-panel');
+        const editInput = document.getElementById('edit-input');
+        
+        let typingTimer;
+        let currentData = { word: '', translation: '', descriptionThai: '', definition: '' };
 
-        ipcRenderer.on('cancel-scan', () => resetUI());
+        ipcRenderer.on('cancel-scan', () => {
+            resetUI();
+        });
 
         function resetUI() {
             bgImg.style.display = 'none';
-            status.style.display = 'none';
             wordContainer.innerHTML = '';
-            defCard.style.display = 'none';
+            controlPanel.style.display = 'none';
             ipcRenderer.send('set-ignore-mouse', true);
         }
 
         ipcRenderer.on('process-image', (event, paths) => {
             bgImg.src = `file://${paths.displayImg}?t=${Date.now()}`;
             bgImg.style.display = 'block';
-            status.style.display = 'block';
-            status.innerHTML = '<span class="loader"></span>AI ANALYZING TEXT...';
             wordContainer.innerHTML = '';
-            defCard.style.display = 'none';
-
+            
             bgImg.onload = () => {
                 const scaleX = bgImg.clientWidth / bgImg.naturalWidth;
                 const scaleY = bgImg.clientHeight / bgImg.naturalHeight;
-                // ปรับ OCR Scale ตาม 3x resize (5760 / originalWidth)
                 const ocrScale = 5760 / bgImg.naturalWidth;
 
-                Tesseract.recognize(paths.scanImg, 'eng+tha')
-                    .then(({ data: { words } }) => {
-                        status.innerText = `Found ${words.length} items.`;
-                        
-                        words.forEach(word => {
-                            // กรอง Noise: ต้องมีตัวอักษรอย่างน้อย 2 ตัว และไม่ใช่แค่สัญลักษณ์
-                            if (word.text.length < 2 || !/[a-zA-Zก-ฮ]/.test(word.text)) return;
-                            if (word.confidence < 60) return; // กรองคำที่ AI ไม่มั่นใจ
+                Tesseract.recognize(paths.scanImg, 'eng').then(({ data: { words } }) => {
+                    words.forEach(word => {
+                        if (word.text.length < 2) return;
+                        const { x0, y0, x1, y1 } = word.bbox;
+                        const div = document.createElement('div');
+                        div.className = 'word-box';
+                        div.style.left = `${(x0 / ocrScale) * scaleX}px`;
+                        div.style.top = `${(y0 / ocrScale) * scaleY}px`;
+                        div.style.width = `${((x1 - x0) / ocrScale) * scaleX}px`;
+                        div.style.height = `${((y1 - y0) / ocrScale) * scaleY}px`;
 
-                            const { x0, y0, x1, y1 } = word.bbox;
-                            const div = document.createElement('div');
-                            div.className = 'word-box';
-                            
-                            div.style.left = `${(x0 / ocrScale) * scaleX}px`;
-                            div.style.top = `${(y0 / ocrScale) * scaleY}px`;
-                            div.style.width = `${((x1 - x0) / ocrScale) * scaleX}px`;
-                            div.style.height = `${((y1 - y0) / ocrScale) * scaleY}px`;
-
-                            div.onclick = (e) => {
-                                e.stopPropagation();
-                                showDefinition(word.text);
-                            };
-
-                            wordContainer.appendChild(div);
-                        });
+                        div.onclick = (e) => {
+                            e.stopPropagation();
+                            controlPanel.style.display = 'block';
+                            editInput.value = word.text.replace(/[^a-zA-Z\s]/g, '').trim();
+                            ipcRenderer.send('set-ignore-mouse', false);
+                            editInput.focus();
+                            triggerAutoTranslate(); 
+                        };
+                        wordContainer.appendChild(div);
                     });
+                });
             };
         });
 
-        async function showDefinition(word) {
-            // ล้างสัญลักษณ์แปลกๆ ออกก่อนส่งไปแปล
-            const cleanWord = word.replace(/[^a-zA-Zก-ฮ\s]/g, '').trim();
-            if (!cleanWord) return;
+        editInput.addEventListener('input', () => {
+            clearTimeout(typingTimer);
+            document.getElementById('card-thai').innerText = "...";
+            typingTimer = setTimeout(triggerAutoTranslate, 500); 
+        });
 
-            document.getElementById('card-word').innerText = word;
-            document.getElementById('card-thai').innerText = 'Translating...';
-            document.getElementById('card-eng').innerText = 'Searching dictionary...';
-            document.getElementById('card-phonetic').innerText = '';
-            document.getElementById('save-btn').innerText = 'Add to My Library';
-            document.getElementById('save-btn').disabled = true;
-            defCard.style.display = 'block';
-
-            currentWordData = { word, translation: '', definition: '' };
-
+        async function triggerAutoTranslate() {
+            const word = editInput.value.trim();
+            if (!word) return;
+            
             try {
-                // 1. แปลไทย (MyMemory API)
-                const transRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(cleanWord)}&langpair=en|th`);
-                const transData = await transRes.json();
-                const thaiTrans = transData.responseData.translatedText;
-                document.getElementById('card-thai').innerText = thaiTrans;
-                currentWordData.translation = thaiTrans;
-
-                // 2. คำแปลอังกฤษ (Dictionary API)
-                const dictRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${cleanWord.toLowerCase()}`);
-                if (dictRes.ok) {
-                    const dictData = await dictRes.json();
-                    const entry = dictData[0];
-                    const def = entry.meanings[0].definitions[0].definition;
-                    document.getElementById('card-phonetic').innerText = entry.phonetic || '';
-                    document.getElementById('card-eng').innerText = def;
-                    currentWordData.definition = def;
+                // 1. แปลไทย + ดึงคำอธิบาย (MyMemory + Google ฐานข้อมูลร่วม)
+                const tRes = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|th`);
+                const tData = await tRes.json();
+                
+                // แยกคำแปลหลักกับคำอธิบาย (ถ้ามีหลายความหมาย)
+                const matches = tData.matches || [];
+                const mainThai = tData.responseData.translatedText;
+                
+                // หาคำอธิบายไทยเพิ่มเติมจาก Match อื่นๆ
+                let descThai = "";
+                if (matches.length > 1) {
+                    descThai = matches.slice(1, 3).map(m => m.translation).join(', ');
                 } else {
-                    // ถ้าไม่มีใน Dictionary ให้เอาคำแปลไทยนั่นแหละมาใส่แทน
-                    document.getElementById('card-eng').innerText = 'No English definition found.';
+                    descThai = "ความหมายใกล้เคียง: " + mainThai;
                 }
 
+                // 2. นิยามอังกฤษ
+                const dRes = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`);
+                let eng = "No English definition found.";
+                if (dRes.ok) {
+                    const dData = await dRes.json();
+                    eng = dData[0].meanings[0].definitions[0].definition;
+                }
+
+                // แสดงผลบนการ์ด
+                document.getElementById('card-thai').innerText = mainThai;
+                document.getElementById('card-desc-thai').innerText = descThai;
+                document.getElementById('card-eng').innerText = eng;
+                
+                currentData = { 
+                    word, 
+                    translation: mainThai, 
+                    descriptionThai: descThai,
+                    definition: eng 
+                };
+                
+                document.getElementById('save-btn').innerText = "เก็บเข้าคลังคำศัพท์";
                 document.getElementById('save-btn').disabled = false;
-            } catch (err) {
-                document.getElementById('card-thai').innerText = 'Translation service unavailable.';
+            } catch (e) {
+                document.getElementById('card-thai').innerText = "API Error";
             }
         }
 
         function saveToLibrary() {
-            if (currentWordData) {
-                ipcRenderer.send('save-vocabulary', currentWordData);
-                document.getElementById('save-btn').innerText = 'Saved! ✅';
-                document.getElementById('save-btn').disabled = true;
-            }
+            ipcRenderer.send('save-vocabulary', currentData);
+            document.getElementById('save-btn').innerText = "บันทึกแล้ว! ✅";
+            document.getElementById('save-btn').disabled = true;
         }
 
-        function toggleLibrary() {
-            const panel = document.getElementById('library-panel');
-            const isVisible = panel.style.right === '0px';
-            
-            if (!isVisible) {
-                panel.style.right = '0px';
-                ipcRenderer.send('set-ignore-mouse', false);
-                ipcRenderer.send('get-vocabulary');
-            } else {
-                panel.style.right = '-420px';
-                if (bgImg.style.display !== 'block') {
-                    ipcRenderer.send('set-ignore-mouse', true);
-                }
-            }
-        }
-
-        ipcRenderer.on('update-vocab-list', (event, list) => {
-            const container = document.getElementById('vocab-list');
-            if (list.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#64748b;">No saved words yet.</p>';
-                return;
-            }
-            container.innerHTML = list.map(item => `
-                <div class="vocab-item">
-                    <strong style="color: var(--primary); font-size: 1.3rem;">${item.word}</strong>
-                    <div style="color: #fff; margin: 8px 0; font-size: 1.1rem;">${item.translation}</div>
-                    <div style="font-size: 0.85rem; color: #9ca3af; line-height: 1.4;">${item.definition}</div>
-                </div>
-            `).reverse().join('');
-        });
-
-        document.body.onclick = (e) => {
-            if (e.target === document.body || e.target === bgImg) resetUI();
-        };
+        document.body.onclick = (e) => { if (e.target === bgImg) resetUI(); };
     </script>
 </body>
 </html>
