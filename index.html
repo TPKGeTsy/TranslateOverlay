@@ -201,6 +201,11 @@
             ipcRenderer.send('save-vocabulary', currentData);
             document.getElementById('save-btn').innerText = "บันทึกแล้ว! ✅";
             document.getElementById('save-btn').disabled = true;
+            
+            // Auto-close after 1 second
+            setTimeout(() => {
+                resetUI();
+            }, 1000);
         }
 
         document.body.onclick = (e) => { if (e.target === bgImg) resetUI(); };
